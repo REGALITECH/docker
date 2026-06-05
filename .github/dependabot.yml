@@ -1,0 +1,52 @@
+# Dependabot — native GitHub, no version pin needed for Dependabot itself.
+#
+# Two ecosystems:
+#   - "docker": one entry per image dir, bumps the FROM base images
+#     (debian:bookworm-slim, golang:1.26-bookworm) in each Dockerfile.
+#   - "github-actions": directory "/" bumps every action ref in
+#     .github/workflows/*.yml. Because we pin actions to immutable commit SHAs
+#     with the human-readable tag in a trailing comment, Dependabot bumps the
+#     SHA AND keeps the comment in sync (supply-chain hardening + auto-updates).
+version: 2
+updates:
+  # ---- base images (FROM) per image directory ----
+  - package-ecosystem: "docker"
+    directory: "/rtpengine"
+    schedule:
+      interval: "weekly"
+    labels: ["dependencies", "docker"]
+    commit-message:
+      prefix: "rtpengine"
+
+  - package-ecosystem: "docker"
+    directory: "/kamailio"
+    schedule:
+      interval: "weekly"
+    labels: ["dependencies", "docker"]
+    commit-message:
+      prefix: "kamailio"
+
+  - package-ecosystem: "docker"
+    directory: "/asterisk"
+    schedule:
+      interval: "weekly"
+    labels: ["dependencies", "docker"]
+    commit-message:
+      prefix: "asterisk"
+
+  - package-ecosystem: "docker"
+    directory: "/ari-proxy"
+    schedule:
+      interval: "weekly"
+    labels: ["dependencies", "docker"]
+    commit-message:
+      prefix: "ari-proxy"
+
+  # ---- GitHub Actions refs in all workflows ----
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels: ["dependencies", "github-actions"]
+    commit-message:
+      prefix: "ci"
