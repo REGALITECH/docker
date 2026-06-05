@@ -1,0 +1,18 @@
+# Local Docker / buildx artifacts
+*.tar
+*.tar.gz
+.buildx-cache/
+docker-bake.override.hcl
+
+# Editor / OS cruft
+.DS_Store
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Env files (no secrets belong in this repo, but guard anyway)
+.env
+.env.*
+!.env.example
