@@ -17,10 +17,12 @@
 FROM golang:1.26-bookworm AS builder
 
 # Pin the fork ref for a reproducible build: daniel-sullivan/ari-proxy at the
-# externalmedia-data commit that adds the go.mod replace (ari/v5 ->
-# daniel-sullivan/ari, carrying ExternalMedia.Data). This is the exact source
-# of the currently-deployed streaming/ari-proxy:ccc0bb66... image.
-ARG ARI_PROXY_REF=ccc0bb66b4d5fb99bdd50225b2068b7352195600
+# event-plane-selfheal commit, which sits on top of the externalmedia-data
+# commit (so it keeps the go.mod replace ari/v5 -> daniel-sullivan/ari carrying
+# ExternalMedia.Data). Adds an event-socket watchdog that self-restarts the
+# sidecar when Asterisk's event websocket half-dies (was a manual bounce), plus
+# the dialog cleaner.
+ARG ARI_PROXY_REF=f8d0df8413bcaaadf40ce3a49e1ec322c18e0c64
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
