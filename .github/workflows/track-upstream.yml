@@ -38,6 +38,7 @@ permissions:
   contents: write # commit bump branches / push version tags
   pull-requests: write # open PRs for major bumps
   actions: write # trigger publish.yml via gh workflow run
+  id-token: write # OIDC token for claude-code-action
 
 concurrency:
   group: track-upstream-${{ github.ref }}
