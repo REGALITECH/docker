@@ -28,6 +28,7 @@ permissions:
   packages: write # push rebuilt images to GHCR
   pull-requests: write # triage PRs
   security-events: write # upload Trivy SARIF to code-scanning
+  id-token: write # OIDC token for claude-code-action
 
 concurrency:
   group: rebuild-from-pins
