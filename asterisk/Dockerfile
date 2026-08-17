@@ -2,10 +2,19 @@ FROM debian:bookworm-slim AS builder
 
 ARG ASTERISK_VERSION=23.3.0
 
+# Built from a fork rather than the release tarball to carry a fix to
+# res_audiosocket that is not yet in an upstream release: the header read
+# loop retries an idle poll without bound, which starves the AudioSocket
+# channel's outbound audio. ASTERISK_REF pins the exact commit.
+# Revert to the upstream tarball once the fix ships in a release.
+ARG ASTERISK_REPO=https://github.com/daniel-sullivan/asterisk.git
+ARG ASTERISK_REF=f801c5fa11e6d26fb92c499885fcce09e17bf80a
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     ca-certificates \
     curl \
+    git \
     libedit-dev \
     libjansson-dev \
     libsqlite3-dev \
@@ -22,8 +31,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /usr/src
 
-RUN curl -fsSL "https://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-${ASTERISK_VERSION}.tar.gz" \
-    | tar xz --strip-components=1
+RUN git init -q . \
+    && git remote add origin "${ASTERISK_REPO}" \
+    && git fetch -q --depth 1 origin "${ASTERISK_REF}" \
+    && git checkout -q FETCH_HEAD \
+    && git --no-pager log -1 --format='building asterisk from %H%n%s'
 
 RUN ./configure --with-jansson-bundled=no \
     && make menuselect.makeopts \
