@@ -14,7 +14,7 @@
 #
 # Published to the shared ECR as streaming/ari-proxy (account 312831649310) by
 # etla_streaming's build-docker.yml, exactly like streaming/rtpengine.
-FROM golang:1.26-bookworm AS builder
+FROM golang:1.27-bookworm AS builder
 
 # Pin the fork ref for a reproducible build: daniel-sullivan/ari-proxy at the
 # event-plane-selfheal commit, which sits on top of the externalmedia-data
