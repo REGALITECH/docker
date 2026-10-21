@@ -144,7 +144,7 @@ only the minimum `contents` / `packages` / `pull-requests` / `actions` /
 - **ari-proxy** is pinned to a specific **fork commit** of
   `daniel-sullivan/ari-proxy` that carries the load-bearing `ExternalMedia.Data`
   `replace`. It is **never auto-bumped**. The weekly rebuild refreshes its
-  `golang:1.26-bookworm` / `debian:bookworm-slim` bases for CVEs; a separate
+  `golang:1.27.3-bookworm` / `debian:bookworm-slim` bases for CVEs; a separate
   flag-only job opens an **issue** (not a PR/bump) if the fork's default-branch
   HEAD moves, so a human can review before changing `ARI_PROXY_REF`.
 
@@ -172,7 +172,7 @@ CVEs, and Dependabot bumps the `FROM` base images + the Action refs.
 
 If you bump a pin by hand, web-search for the current upstream release first:
 rtpengine (`mr26.0.1.13`), asterisk (`23.3.0`), kamailio APT branch
-(`kamailio61`), `golang:1.26-bookworm`, and the GitHub Actions
+(`kamailio61`), `golang:1.27.3-bookworm`, and the GitHub Actions
 (`actions/checkout`, `docker/setup-buildx-action`, `docker/login-action`,
 `docker/bake-action`, `anthropics/claude-code-action`,
 `aquasecurity/trivy-action`). All Action refs are pinned to immutable commit SHAs
