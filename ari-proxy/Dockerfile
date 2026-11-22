@@ -5,10 +5,8 @@
 # upstream github.com/CyCoreSystems/ari/v5 v5.3.1, whose `ExternalMedia`
 # struct has NO `Data` field — so the proxy silently DROPS the ExternalMedia
 # `data` parameter (the AudioSocket UUID) the manager sends. The fork
-# daniel-sullivan/ari carries that `Data` field; daniel-sullivan/ari-proxy is
-# upstream ari-proxy v5.3.1 + a single go.mod `replace` pointing ari/v5 at the
-# fork. NO ari-proxy code change — just recompiling against the fork's struct
-# fixes the dropped field. See the fork go.mod replace:
+# daniel-sullivan/ari carries that `Data` field. The ari-proxy fork uses a
+# go.mod `replace` to build against the corrected struct:
 #   replace github.com/CyCoreSystems/ari/v5 =>
 #     github.com/daniel-sullivan/ari/v5 v5.3.2-0.20260312051653-3faec98e5b75
 #
@@ -16,13 +14,9 @@
 # etla_streaming's build-docker.yml, exactly like streaming/rtpengine.
 FROM golang:1.26-bookworm AS builder
 
-# Pin the fork ref for a reproducible build: daniel-sullivan/ari-proxy at the
-# event-plane-selfheal commit, which sits on top of the externalmedia-data
-# commit (so it keeps the go.mod replace ari/v5 -> daniel-sullivan/ari carrying
-# ExternalMedia.Data). Adds an event-socket watchdog that self-restarts the
-# sidecar when Asterisk's event websocket half-dies (was a manual bounce), plus
-# the dialog cleaner.
-ARG ARI_PROXY_REF=f8d0df8413bcaaadf40ce3a49e1ec322c18e0c64
+# Pin the manager capability policy on top of event-plane self-heal and
+# ExternalMedia.Data support.
+ARG ARI_PROXY_REF=03a3dcb9801cd69ec8f7e10c97e197a96202e60d
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
