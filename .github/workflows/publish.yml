@@ -53,6 +53,10 @@ jobs:
         uses: docker/bake-action@6614cfa25eff9a0b2b2697efb0b6159e7680d584 # v7
         with:
           targets: ari-proxy
+          load: true
+
+      - name: Smoke-test the ARI proxy entrypoint
+        run: docker run --rm ghcr.io/regalitech/docker/ari-proxy:latest --help
 
   bake:
     if: github.event_name != 'pull_request'
