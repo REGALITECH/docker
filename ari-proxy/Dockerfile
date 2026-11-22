@@ -16,7 +16,7 @@ FROM golang:1.26-bookworm AS builder
 
 # Pin the manager capability policy on top of event-plane self-heal and
 # ExternalMedia.Data support.
-ARG ARI_PROXY_REF=03a3dcb9801cd69ec8f7e10c97e197a96202e60d
+ARG ARI_PROXY_REF=df2a3a6058e0f1cb4cc19973b9c713e4ce140d5a
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
