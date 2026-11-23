@@ -67,7 +67,7 @@ RUN ./configure --with-jansson-bundled=no \
         --enable app_audiosocket \
         --enable chan_audiosocket \
         menuselect.makeopts \
-    && grep -q '^MENUSELECT_CFLAGS=.*BUILD_NATIVE' menuselect.makeopts \
+    && ! grep -q '^MENUSELECT_CFLAGS=.*BUILD_NATIVE' menuselect.makeopts \
     && make -j$(nproc) \
     && make install
 
