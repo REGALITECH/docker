@@ -1,0 +1,55 @@
+name: Asterisk dev immutable image
+
+# stopgap: one capture-proof candidate; remove after the dev test.
+on:
+  push:
+    branches: [sip-asterisk-immutable-publish]
+    paths:
+      - asterisk/Dockerfile
+      - .github/workflows/asterisk-dev-immutable.yml
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.publish.outputs.image }}
+      digest: ${{ steps.publish.outputs.digest }}
+    steps:
+      - name: Checkout exact branch commit
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and publish Asterisk
+        id: publish
+        env:
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          OWNER: ${{ github.repository_owner }}
+          CANDIDATE: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$CANDIDATE"
+          owner_lc=$(printf '%s' "$OWNER" | tr '[:upper:]' '[:lower:]')
+          image="ghcr.io/${owner_lc}/docker/asterisk:${CANDIDATE}-${RUN_ID}-${RUN_ATTEMPT}"
+          docker buildx build --platform linux/amd64 --push --tag "$image" \
+            --metadata-file "$RUNNER_TEMP/asterisk-metadata.json" asterisk
+          digest=$(jq -er '."containerimage.digest" | select(test("^sha256:[0-9a-f]{64}$"))' "$RUNNER_TEMP/asterisk-metadata.json")
+          echo "image=$image" >> "$GITHUB_OUTPUT"
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+          echo "Published $image@$digest" >> "$GITHUB_STEP_SUMMARY"
