@@ -40,6 +40,7 @@ RUN git init -q . \
 RUN ./configure --with-jansson-bundled=no \
     && make menuselect.makeopts \
     && menuselect/menuselect \
+        --disable BUILD_NATIVE \
         --enable res_ari \
         --enable res_ari_applications \
         --enable res_ari_asterisk \
