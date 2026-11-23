@@ -17,6 +17,9 @@ on:
   pull_request:
     paths:
       - ari-proxy/**
+      - asterisk/**
+      - kamailio/**
+      - rtpengine/**
       - .github/workflows/publish.yml
       - docker-bake.hcl
   push:
@@ -57,6 +60,27 @@ jobs:
 
       - name: Smoke-test the ARI proxy entrypoint
         run: docker run --rm ghcr.io/regalitech/docker/ari-proxy:latest --help
+
+  image-build:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [asterisk, kamailio, rtpengine]
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4
+
+      - name: Build ${{ matrix.target }} (no push)
+        uses: docker/bake-action@6614cfa25eff9a0b2b2697efb0b6159e7680d584 # v7
+        with:
+          targets: ${{ matrix.target }}
 
   bake:
     if: github.event_name != 'pull_request'
