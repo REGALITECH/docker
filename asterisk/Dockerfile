@@ -2,11 +2,12 @@ FROM debian:bookworm-slim AS builder
 
 ARG ASTERISK_VERSION=23.3.0
 
-# Built from a fork rather than the release tarball to carry a fix to
-# res_audiosocket that is not yet in an upstream release: the header read
-# loop retries an idle poll without bound, which starves the AudioSocket
-# channel's outbound audio. ASTERISK_REF pins the exact commit.
-# Revert to the upstream tarball once the fix ships in a release.
+# Built from a fork rather than the release tarball to carry patches that are
+# not in an upstream release: a res_audiosocket fix (the header read loop
+# retries an idle poll without bound, which starves the AudioSocket channel's
+# outbound audio) and the PJSIP capture lease patches in res_pjsip_logger.
+# ASTERISK_REF pins the exact commit.
+# Revert to the upstream tarball once these ship in a release.
 ARG ASTERISK_REPO=https://github.com/daniel-sullivan/asterisk.git
 ARG ASTERISK_REF=035ad4d3a0194a1cf90b12784e504716bd1605a8
 
@@ -40,6 +41,7 @@ RUN git init -q . \
 RUN ./configure --with-jansson-bundled=no \
     && make menuselect.makeopts \
     && menuselect/menuselect \
+        --disable BUILD_NATIVE \
         --enable res_ari \
         --enable res_ari_applications \
         --enable res_ari_asterisk \
