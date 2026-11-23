@@ -12,7 +12,7 @@
 #
 # Published to the shared ECR as streaming/ari-proxy (account 312831649310) by
 # etla_streaming's build-docker.yml, exactly like streaming/rtpengine.
-FROM golang:1.26-bookworm AS builder
+FROM golang:1.27.3-bookworm AS builder
 
 # Pin the manager capability policy on top of event-plane self-heal and
 # ExternalMedia.Data support.
