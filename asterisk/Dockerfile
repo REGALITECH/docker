@@ -6,7 +6,8 @@ ARG ASTERISK_VERSION=23.3.0
 # not in an upstream release: a res_audiosocket fix (the header read loop
 # retries an idle poll without bound, which starves the AudioSocket channel's
 # outbound audio) and the PJSIP capture lease patches in res_pjsip_logger.
-# ASTERISK_REF pins the exact commit.
+# ASTERISK_REF pins the exact commit, kept on the fork branch
+# etla-pin/asterisk-capture-lease so it stays fetchable by SHA.
 # Revert to the upstream tarball once these ship in a release.
 ARG ASTERISK_REPO=https://github.com/daniel-sullivan/asterisk.git
 ARG ASTERISK_REF=8b5f5d6a8ce713736af0e12144eeffc86d827773
