@@ -8,7 +8,7 @@ ARG ASTERISK_VERSION=23.3.0
 # channel's outbound audio. ASTERISK_REF pins the exact commit.
 # Revert to the upstream tarball once the fix ships in a release.
 ARG ASTERISK_REPO=https://github.com/daniel-sullivan/asterisk.git
-ARG ASTERISK_REF=f24c5bf4d25a31f6e1d00f929dc990d3d133d7e1
+ARG ASTERISK_REF=f11f87a96ab045aa8cf63dc6ac30af1ec767d6c0
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
