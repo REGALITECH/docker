@@ -9,7 +9,7 @@ ARG ASTERISK_VERSION=23.3.0
 # ASTERISK_REF pins the exact commit.
 # Revert to the upstream tarball once these ship in a release.
 ARG ASTERISK_REPO=https://github.com/daniel-sullivan/asterisk.git
-ARG ASTERISK_REF=035ad4d3a0194a1cf90b12784e504716bd1605a8
+ARG ASTERISK_REF=f653e7f43c897c3db089bc11d118debdc562dd0b
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -67,6 +67,7 @@ RUN ./configure --with-jansson-bundled=no \
         --enable app_audiosocket \
         --enable chan_audiosocket \
         menuselect.makeopts \
+    && grep -q '^MENUSELECT_CFLAGS=.*BUILD_NATIVE' menuselect.makeopts \
     && make -j$(nproc) \
     && make install
 
