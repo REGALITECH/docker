@@ -6,10 +6,11 @@ ARG ASTERISK_VERSION=23.3.0
 # not in an upstream release: a res_audiosocket fix (the header read loop
 # retries an idle poll without bound, which starves the AudioSocket channel's
 # outbound audio) and the PJSIP capture lease patches in res_pjsip_logger.
-# ASTERISK_REF pins the exact commit.
+# ASTERISK_REF pins the exact commit, kept on the fork branch
+# etla-pin/asterisk-capture-lease so it stays fetchable by SHA.
 # Revert to the upstream tarball once these ship in a release.
 ARG ASTERISK_REPO=https://github.com/daniel-sullivan/asterisk.git
-ARG ASTERISK_REF=f653e7f43c897c3db089bc11d118debdc562dd0b
+ARG ASTERISK_REF=8b5f5d6a8ce713736af0e12144eeffc86d827773
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -67,9 +68,29 @@ RUN ./configure --with-jansson-bundled=no \
         --enable app_audiosocket \
         --enable chan_audiosocket \
         menuselect.makeopts \
+    && test -r menuselect.makeopts \
     && ! grep -q '^MENUSELECT_CFLAGS=.*BUILD_NATIVE' menuselect.makeopts \
     && make -j$(nproc) \
     && make install
+
+# Run the capture lease fixtures from the fork against this build: a unit
+# fixture compiled around res_pjsip_logger.c, and a TLS fixture that drives
+# the installed module in an isolated Asterisk. A failure fails the image build.
+RUN PJ=/usr/src/third-party/pjproject/source \
+    && gcc -o /tmp/pjsip_capture_lease tests/fixtures/pjsip_capture_lease.c \
+        -pthread -I/usr/src/include -I/usr/include/libxml2 -g -O1 \
+        -ffunction-sections -fdata-sections \
+        -DAST_MODULE=\"res_pjsip_logger\" \
+        -DAST_MODULE_SELF_SYM=__internal_res_pjsip_logger_self \
+        -DPJ_AUTOCONF=1 -DPJ_HAS_LINUX_EPOLL=1 -DPJ_IS_BIG_ENDIAN=0 -DPJ_IS_LITTLE_ENDIAN=1 \
+        -DPJMEDIA_HAS_SRTP=0 \
+        -I$PJ/pjlib/include -I$PJ/pjlib-util/include -I$PJ/pjnath/include \
+        -I$PJ/pjmedia/include -I$PJ/pjsip/include \
+        -Wl,--gc-sections -Wl,--wrap=clock_gettime \
+    && /tmp/pjsip_capture_lease /tmp/pjsip_capture_lease.pcap \
+    && echo "capture lease unit fixture: ok" \
+    && python3 tests/fixtures/pjsip_capture_lease_tls.py \
+    && rm -f /tmp/pjsip_capture_lease /tmp/pjsip_capture_lease.pcap
 
 # --- runtime ---
 FROM debian:bookworm-slim
